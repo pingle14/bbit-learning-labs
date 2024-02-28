@@ -15,6 +15,7 @@ import pika
 import os
 import sys
 from consumer_interface import mqConsumerInterface
+import json
 
 class mqConsumer(mqConsumerInterface):
     def __init__(
@@ -32,10 +33,10 @@ class mqConsumer(mqConsumerInterface):
     def setupRMQConnection(self) -> None:
         # Set-up Connection to RabbitMQ service
         con_params = pika.URLParameters(os.environ["AMQP_URL"])
-        connection = pika.BlockingConnection(parameters=con_params)
+        self.connection = pika.BlockingConnection(parameters=con_params)
 
         # Establish Channel
-        self.channel = connection.channel()
+        self.channel = self.connection.channel()
 
         # Create Queue if not already present
         self.channel.queue_declare(queue=self.queue_name)
@@ -62,8 +63,7 @@ class mqConsumer(mqConsumerInterface):
         channel.basic_ack(method_frame.delivery_tag, False)
 
         #Print message (The message is contained in the body parameter variable)
-        message = json.loads(body)
-        print(message)
+        print(body)
 
     def startConsuming(self) -> None:
         # Print " [*] Waiting for messages. To exit press CTRL+C"
@@ -80,4 +80,4 @@ class mqConsumer(mqConsumerInterface):
         self.channel.close()
         
         # Close Connection
-        self.channel.close()
+        self.connection.close()
