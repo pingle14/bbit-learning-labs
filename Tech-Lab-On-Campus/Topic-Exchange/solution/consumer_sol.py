@@ -26,6 +26,8 @@ class mqConsumer(mqConsumerInterface):
         self.exchange_name = exchange_name
         self.queue_name = queue_name
         self.channel = None
+        self.connection = None
+
 
         # Call setupRMQConnection
         self.setupRMQConnection()
@@ -42,7 +44,7 @@ class mqConsumer(mqConsumerInterface):
         self.channel.queue_declare(queue=self.queue_name)
         
         # Create the exchange if not already present
-        exchange = self.channel.exchange_declare(exchange=self.exchange_name)
+        exchange = self.channel.exchange_declare(exchange=self.exchange_name, exchange_type="topic")
 
         # Bind Binding Key to Queue on the exchange
         self.channel.queue_bind(
